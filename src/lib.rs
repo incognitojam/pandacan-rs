@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::mem;
 use std::time::Duration;
 
@@ -5,6 +6,9 @@ extern crate libusb;
 
 #[macro_use]
 extern crate bitflags;
+
+#[macro_use]
+extern crate lazy_static;
 
 const HEALTH_VERSION: u8 = 3;
 const CAN_VERSION: u8 = 1;
@@ -151,6 +155,20 @@ pub struct CanMessage {
     pub src: u8,
     pub len : usize,
     pub dat : [u8; 8],
+}
+
+
+const DLC_TO_LEN: [usize; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+
+lazy_static! {
+    #[derive(Debug)]
+    static ref LEN_TO_DLC: HashMap<usize, usize> = {
+        let mut m = HashMap::new();
+        for (i, &len) in DLC_TO_LEN.iter().enumerate() {
+            m.insert(len, i);
+        }
+        m
+    };
 }
 
 
